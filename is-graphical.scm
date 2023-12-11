@@ -1,15 +1,15 @@
 (define (even-number-of-odd-numbers? list)
   (define count 0)
   (map (lambda (x) (set! count (+ count (if (odd? x) 1
-				       0)))) list)
+					0)))) list)
   (even? count)
   )
 
 (define (subtract-front-portion list portion)
-  (if (= portion 0) '() (cons (- (car list) 1) (subtract-front-portion (cdr list) (- portion 1))))
+  (if (= portion 0) list (cons (- (car list) 1) (subtract-front-portion (cdr list) (- portion 1))))
   )
 
-(define (is-graphical? list)
+(define (is-graphical-Eggleton list)
   """
 1. IF first degree in the nonincreaesing list is greater than the size of the list, return false.
 2. Check for an even number of odd number degrees. If not even, return false.
@@ -19,10 +19,28 @@
 6. Recurse by passing the rest of the list into the function 
  """
  (sort-list list >)
-  (cond 
+ (cond 
+  ((null? list) #f)
+  ((not (even-number-of-odd-numbers? list)) #f)
+  ((not (null? (filter (let ((y (length list))) (lambda (x ) (or (> x y) (< x 0)))) list)))  #f)
+  ((= (length (filter (lambda (x) (= 0)) list)) (length list)) #t)
+  (else
+   (let ((newlist (subtract-front-portion list (car list))))
+     (is-graphical-Eggleton (cdr newlist)))
+   )))
+
+(define (ErdosGallai-sum list index)
+  (if (= index (length list)) #t
+      (let ((k (+ index 1)))
+	(if (> (apply + (list-head list k)) (+ (* k index) (apply + (map (lambda (x) (min k x)) (list-tail list k)))))
+	    #f (ErdosGallai-sum list (+ index 1))))))
+
+(define (is-graphical-ErdosGallai list)
+  (sort-list list >)
+  (cond
    ((null? list) #f)
    ((not (even-number-of-odd-numbers? list)) #f)
    ((not (null? (filter (let ((y (length list))) (lambda (x ) (or (> x y) (< x 0)))) list)))  #f)
-   ((= (length (filter (lambda (x) (= 0)) list)) (length list)) #t)
-   (else (is-graphical? (map (lambda (x) (- x 1)) (cdr list)))
-	 )))
+   (else (ErdosGallai-sum list 0))
+   )
+  )
