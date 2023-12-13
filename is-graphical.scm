@@ -11,7 +11,7 @@
 
 (define (is-graphical-Eggleton list)
   """
-1. IF first degree in the nonincreaesing list is greater than the size of the list, return false.
+1. IF first degree in the nonincreasing list is greater than the size of the list, return false.
 2. Check for an even number of odd number degrees. If not even, return false.
 3. Sort the list to be nonincreasing if necessary. 
 4. Take the first degree p in the list, and subtract 1  from each degree up to the pth degree. TODO!
