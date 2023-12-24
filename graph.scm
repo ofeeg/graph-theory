@@ -17,7 +17,7 @@
 			      (filter (let ((y degseq)) (lambda (x)
 							  (and (not (vertex-connected? x (car graph)))
 							       (< (length (cdr x)) (list-ref y (list-index  graph x)))))) (cdr graph))))
-			 (if (> (length a) (car degseq)) (list-head a (car degseq)) a)))
+			 (if (> (length a) (car degseq)) (list-head a (- (car degseq) (length (cdr (car graph))))) a)))
 		  (populate-vertices (cdr graph) (cdr degseq)))
 	    )))
   (if (is-graphical-ErdosGallai degseq)
