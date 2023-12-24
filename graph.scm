@@ -4,23 +4,55 @@
   (cons value vertices)
   )
 
+(define (create-vertices order)
+  (if (> order 0) (cons (vertex (- order 1) '()) (create-vertices (- order 1))) '()))
+
 (define (create-graph degseq)
-  (if (is-graphical-ErdosGallai degseq) #f
-      #t
-      )
+  (define graph (create-vertices (length degseq)))
+  (define (populate-vertices graph degseq)
+    (if (or (null? degseq) (null? graph)) '()
+	(if (eq? (car degseq) (length (cdr (car graph)))) (populate-vertices (cdr graph) (cdr degseq))
+	    (cons (map (lambda (x) (graph-connect (car graph) x))
+		       (let ((a
+			      (filter (let ((y degseq)) (lambda (x)
+							  (and (not (vertex-connected? x (car graph)))
+							       (< (length (cdr x)) (list-ref y (list-index  graph x)))))) (cdr graph))))
+			 (if (> (length a) (car degseq)) (list-head a (car degseq)) a)))
+		  (populate-vertices (cdr graph) (cdr degseq)))
+	    )))
+  (if (is-graphical-ErdosGallai degseq)
+      (populate-vertices graph degseq) #f)
+  graph
   )
 
-
-;;TODO: This doesn't work, but is a good starting point.
-(define (connect-func vertex vertices)
-  (if (list? (car vertices)) (set-cdr! vertex (append (cdr vertex) (list (map car vertices)))) (set-cdr! vertex (append (cdr vertex) vertices)))
-  )
+(define (vertex-connected? v1 v2)
+			    (not (null? (filter (lambda (x) (eq? x (car v2))) (cdr v1)))))
 
 (define (iter-filter list flist)
-			   (if (null? flist) list (iter-filter (filter (let ((y (car flist))) (lambda (x) (not (eq? y x)))) list) (cdr flist)))
-			   )
-;;This doesn't work.
-(define (connect-func vertex vertices)
-  (if (list? (car vertices)) (set-cdr! vertex (append (cdr vertex) (iter-filter (list (map car vertices)) (cdr vertex)))) (set-cdr! vertex (append (cdr vertex) (iter-filter vertices (cdr vertex)))))
-  (map (let ((y vertex)) (lambda (x) (connect-func x y))) vertices)
+  (if (null? flist) list
+      (iter-filter (filter (let ((y (car flist))) (lambda (x) (not (eq? y x)))) list) (cdr flist)))
   )
+
+(define (graph-connect vertex . vertices)
+  (if (null? vertex) #f
+  (if (pair? (car (car vertices)))
+	     (let ((vs (car vertices)))
+	         (caar (cons (map (lambda (x) (digraph-connect x vertex)) vs)
+		 (map (lambda (x) (digraph-connect vertex x)) vs)
+		 )))
+  ;;This didn't work for some reason??
+  ;;(define (connect-func connector connectee)
+    ;;(set-cdr! vertex (append (cdr connector) (iter-filter (car connectee)  connector)))
+  ;;connecting a normal graph is just connecting a digraph but they connect to eachother.
+	     (caar (cons (map (lambda (x) (digraph-connect x vertex)) vertices)
+		   (map (lambda (x) (digraph-connect vertex x)) vertices)))))
+  ;;(connect-func vertex vertices)
+  )
+
+;;digraphs have one-way connections.
+(define (digraph-connect vertex . vertices)
+  (set-cdr! vertex (append (cdr vertex) (iter-filter (map car vertices)  vertex)))
+  )
+
+(define (get-degseq graph)
+  (map (lambda (x) (length (cdr x))) graph))
