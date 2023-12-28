@@ -7,6 +7,7 @@
 (define (create-vertices order)
   (if (> order 0) (cons (vertex (- order 1) '()) (create-vertices (- order 1))) '()))
 
+;;The Graphs created by this are not guaranteed to be Connected Graphs, just Graphs that satisfy the given degree sequence.
 (define (create-graph degseq)
   (define graph (create-vertices (length degseq)))
   (define (populate-vertices graph degseq)
