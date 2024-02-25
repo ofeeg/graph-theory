@@ -49,3 +49,12 @@
 	((or (> start (length graph)) (> end (length graph))) #f)
 	((null? unexplored) #f) 
 	(else (walkable (subgraph-rm-v graph (select-vertex graph start)) (car unexplored) end))))
+
+
+(define (path? graph vertices)
+  (if (or (null? vertices) (null? (cdr vertices))  (null? graph)) #t
+   (let ((path (map (lambda(x) (select-vertex graph x)) vertices)))
+  (cond ((< 1 (length (filter (lambda (x) (eq? (car x) (car vertices))) path))) #f)
+	((null? (filter (lambda (x) (eq? (cadr vertices) x)) (select-vertex graph (car vertices)))) #f)
+	(else (path? graph (cdr vertices)))))))
+      
