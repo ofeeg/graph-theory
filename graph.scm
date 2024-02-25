@@ -8,6 +8,7 @@
   (if (> order 0) (cons (vertex (- order 1) '()) (create-vertices (- order 1))) '()))
 
 ;;The Graphs created by this are not guaranteed to be Connected Graphs, just Graphs that satisfy the given degree sequence.
+;;Also, this has problems when the last degree in the sequences is even and the length of the sequence isn't a multiple of 3.
 (define (create-graph degseq)
   (define graph (create-vertices (length degseq)))
   (define (populate-vertices graph degseq)
@@ -18,7 +19,8 @@
 			      (filter (let ((y degseq)) (lambda (x)
 							  (and (not (vertex-connected? x (car graph)))
 							       (< (length (cdr x)) (list-ref y (list-index  graph x)))))) (cdr graph))))
-			 (if (> (length a) (car degseq)) (list-head a (- (car degseq) (length (cdr (car graph))))) a)))
+			 (list-head a (- (car degseq) (length (cdr (car graph)))))))
+			 ;;(if (> (length a) (car degseq)) (list-head a (- (car degseq) (length (cdr (car graph))))) a)))
 		  (populate-vertices (cdr graph) (cdr degseq)))
 	    )))
   (if (is-graphical-ErdosGallai degseq)
@@ -57,3 +59,9 @@
 
 (define (get-degseq graph)
   (map (lambda (x) (length (cdr x))) graph))
+
+(define (subgraph-rm-v graph vertices-excluded)
+  (if (null? vertices-excluded) graph
+      (let ((post-vertex-removal (filter (lambda (x) (not (eq? (car x) (car vertices-excluded)))) graph)))
+	( subgraph-rm-v (map (lambda (x) (filter (lambda (y) (not (eq? y (car vertices-excluded)))) x))
+			     post-vertex-removal) (cdr vertices-excluded)))))
