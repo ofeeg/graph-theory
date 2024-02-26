@@ -6,9 +6,6 @@
     (if (null? vertex) '() (car vertex)))
   )
 
-(define (walkable? graph start dest)
-  (if (eq? start dest) '() ( (map (lambda (x) (select-vertex graph x)) (cdr (select-vertex graph start)))  (map (lambda (x) (select-vertex graph x)) (cdr (select-vertex graph dest))))))
-
 
 (define (not-empty list) (not (null? list)))
 
@@ -52,9 +49,17 @@
 
 
 (define (path? graph vertices)
+  ;;A path is a list of vertices x to z where each vertex in between connects to eachother through to the end, and there are no duplicates.
+  ;;Check for valid input, check if the next vertex in the list is actually connected to the first, and if so recurse through to the end.
   (if (or (null? vertices) (null? (cdr vertices))  (null? graph)) #t
-   (let ((path (map (lambda(x) (select-vertex graph x)) vertices)))
+   (let ((path (map (lambda (x) (select-vertex graph x)) vertices)))
   (cond ((< 1 (length (filter (lambda (x) (eq? (car x) (car vertices))) path))) #f)
 	((null? (filter (lambda (x) (eq? (cadr vertices) x)) (select-vertex graph (car vertices)))) #f)
 	(else (path? graph (cdr vertices)))))))
-      
+
+(define (circuit? graph vertices)
+  ;; A circuit is just a path with the first vertex added at the end.
+  ;; Check for valid input, if the first and last vertex match, and check if the rest, excluding the end, is a valid path.
+  (if (and (equal? (list-tail vertices (1- (length vertices))) (list-head vertices 1))
+	   (> (length vertices) 2))
+      (path? graph (list-head vertices (1- (length vertices)))) #f))
