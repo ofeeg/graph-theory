@@ -84,4 +84,10 @@
 	   (> (length vertices) 2))
       (path? graph (list-head vertices (1- (length vertices)))) #f))
 
-;;(define (circuit? 
+(define (circuit? graph vertices)
+  ;; A circuit is just a trail with the first vertex and last vertex being the same. Otherwise known as a closed trail.
+  (if (and (equal? (list-tail vertices (1- (length vertices))) (list-head vertices 1))
+	   (> (length vertices) 2))
+      (trail? graph (list-head vertices (1- (length vertices)))) #f))
+	 
+	 
