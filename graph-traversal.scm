@@ -1,4 +1,3 @@
-
 (load "graph.scm")
 
 (define (select-vertex graph vertex-value)
@@ -6,6 +5,13 @@
     (if (null? vertex) '() (car vertex)))
   )
 
+(define (make-edges vertex-pair)
+  (if (or (null? vertex-pair) (null? (cddr vertex-pair)))
+      (cons (list (car vertex-pair) (cadr vertex-pair)) '())
+      (cons (list (car vertex-pair) (cadr vertex-pair)) (make-edges (cdr vertex-pair)))))
+
+(define (edge? graph edge)
+  (if (null? (filter (lambda (x) (eq? x (cadr edge))) (select-vertex graph (car edge)))) #f #t))
 
 (define (not-empty list) (not (null? list)))
 
@@ -47,6 +53,20 @@
 	((null? unexplored) #f) 
 	(else (walkable (subgraph-rm-v graph (select-vertex graph start)) (car unexplored) end))))
 
+;;(define (trail graph vertices))
+;; check for dupe  edges (map (lambda (x) (or (eq? (car bad) x) (eq? (cadr bad) x))) (car (filter (lambda (x) (edge? g1 x))  (make-edges bad))))  if more than two (#t #t) there is a dupe edge.
+
+(define (trail? graph vertices)
+  (cond ((or (null? (cddr vertices)) (null? vertices)) #t) 
+	((null? (filter not (map (lambda (x) (edge? graph x)) (make-edges vertices)))) #f)
+	((> 1
+	    (length (filter (lambda (x) (equal? (list #t #t) x))
+			    (map (lambda (y)
+				   (map (lambda (x)
+					  (or (eq? (car vertices) x) (eq? (cadr vertices) x))) y))
+				 (make-edges vertices))))) #f)
+	(else (trail? graph (cdr vertices)))))
+
 
 (define (path? graph vertices)
   ;;A path is a list of vertices x to z where each vertex in between connects to eachother through to the end, and there are no duplicates.
@@ -57,9 +77,11 @@
 	((null? (filter (lambda (x) (eq? (cadr vertices) x)) (select-vertex graph (car vertices)))) #f)
 	(else (path? graph (cdr vertices)))))))
 
-(define (circuit? graph vertices)
-  ;; A circuit is just a path with the first vertex added at the end.
+(define (cycle? graph vertices)
+  ;; A cycle is just a path with the first vertex added at the end, in other words a closed path.
   ;; Check for valid input, if the first and last vertex match, and check if the rest, excluding the end, is a valid path.
   (if (and (equal? (list-tail vertices (1- (length vertices))) (list-head vertices 1))
 	   (> (length vertices) 2))
       (path? graph (list-head vertices (1- (length vertices)))) #f))
+
+;;(define (circuit? 
