@@ -58,7 +58,7 @@
 
 (define (trail? graph vertices)
   (cond ((or (null? (cddr vertices)) (null? vertices)) #t) 
-	((null? (filter not (map (lambda (x) (edge? graph x)) (make-edges vertices)))) #f)
+	((not (null? (filter not (map (lambda (x) (edge? graph x)) (make-edges vertices))))) #f)
 	((> 1
 	    (length (filter (lambda (x) (equal? (list #t #t) x))
 			    (map (lambda (y)

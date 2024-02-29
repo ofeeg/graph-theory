@@ -1,5 +1,4 @@
 (load "is-graphical.scm")
-
 (define (vertex value vertices)
   (cons value vertices)
   )
