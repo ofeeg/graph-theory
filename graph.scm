@@ -93,8 +93,7 @@
 (define (assign-edge-lengths graph)
   (define (input-number) 
     (define input (read))
-    (if (number? input) input (input-number)))
+    (if (and (number? input) (not (zero? input)))  input (input-number)))
   (map (lambda (edge) (display (format #f "Assign length to edge: ~s" edge)) (list edge (input-number) )) (get-edges-from-graph g1))
   )
-
 

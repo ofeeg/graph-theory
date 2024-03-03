@@ -1,10 +1,13 @@
 (load "graph.scm")
 
 (define (select-vertex graph vertex-value)
-  (let ((vertex (filter (lambda (x) (eq? (car x)  vertex-value)) graph)))
+  (let ((vertex (filter (lambda (vert) (eq? (car vert)  vertex-value)) graph)))
     (if (null? vertex) '() (car vertex)))
   )
 
+(define (select-edge graph edge-to-find)
+  (filter (lambda (edge) (equal? '(#t #t) (map (lambda (vert) (or (eq? (car edge-to-find) vert) (eq? (cadr edge-to-find) vert))) edge))) (get-edges-from-graph graph))
+  )
 
 (define (have-i-been-here? graph vertex places-walked)
   (let ((old-places (filter (lambda (x) (eq? (car vertex) x)) places-walked)))
