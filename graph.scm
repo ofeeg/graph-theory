@@ -90,8 +90,11 @@
   (if (null? list) '()
       (cons (car list) (delete-dupes  (filter (lambda (x) (not (eq? x (car list)))) list)))))
 
-(define (input-number) 
-  (define input (read))
-  (if (number? input) input (input-number)))
+(define (assign-edge-lengths graph)
+  (define (input-number) 
+    (define input (read))
+    (if (number? input) input (input-number)))
+  (map (lambda (edge) (display (format #f "Assign length to edge: ~s" edge)) (list edge (input-number) )) (get-edges-from-graph g1))
+  )
 
 
