@@ -40,7 +40,7 @@
   (cond
    ((null? list) #f)
    ((not (even-number-of-odd-numbers? list)) #f)
-   ((not (null? (filter (let ((y (length list))) (lambda (x ) (or (> x y) (< x 0)))) list)))  #f)
+   ((not (null? (filter (let ((y (length list))) (lambda (x) (or (> x y) (< x 0)))) list)))  #f)
    (else (ErdosGallai-sum list 0))
    )
   )

@@ -5,16 +5,6 @@
     (if (null? vertex) '() (car vertex)))
   )
 
-(define (make-edges vertex-pair)
-  (if (or (null? vertex-pair) (null? (cddr vertex-pair)))
-      (cons (list (car vertex-pair) (cadr vertex-pair)) '())
-      (cons (list (car vertex-pair) (cadr vertex-pair)) (make-edges (cdr vertex-pair)))))
-
-(define (edge? graph edge)
-  (if (null? (filter (lambda (x) (eq? x (cadr edge))) (select-vertex graph (car edge)))) #f #t))
-
-(define (not-empty list) (not (null? list)))
-
 
 (define (have-i-been-here? graph vertex places-walked)
   (let ((old-places (filter (lambda (x) (eq? (car vertex) x)) places-walked)))
@@ -29,9 +19,6 @@
 	#f
 	#t)))
 
-(define (delete-dupes list)
-  (if (null? list) '()
-      (cons (car list) (delete-dupes  (filter (lambda (x) (not (eq? x (car list)))) list)))))
 
 
 (define (walkable graph start end)
@@ -53,14 +40,14 @@
 	((null? unexplored) #f) 
 	(else (walkable (subgraph-rm-v graph (select-vertex graph start)) (car unexplored) end))))
 
-;;(define (trail graph vertices))
-;; check for dupe  edges (map (lambda (x) (or (eq? (car bad) x) (eq? (cadr bad) x))) (car (filter (lambda (x) (edge? g1 x))  (make-edges bad))))  if more than two (#t #t) there is a dupe edge.
-
 (define (trail? graph vertices)
+  ;;A trail is a list of vertices such that each can be connected without using duplicate edges.
+  ;;Check for valid input. Make a list of edges. Check for duplicate edges. Recurse till empty.
   (cond ((or (null? (cddr vertices)) (null? vertices)) #t) 
 	((not (null? (filter not (map (lambda (x) (edge? graph x)) (make-edges vertices))))) #f)
-	((> 1
-	    (length (filter (lambda (x) (equal? (list #t #t) x))
+	((> 1 ;;Check for dupe edges. If there are more than 2 (#t #t) pairs, then it is an invalid trail.
+	    (length
+	     (filter (lambda (x) (equal? (list #t #t) x))
 			    (map (lambda (y)
 				   (map (lambda (x)
 					  (or (eq? (car vertices) x) (eq? (cadr vertices) x))) y))

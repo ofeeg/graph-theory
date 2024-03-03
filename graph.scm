@@ -64,3 +64,34 @@
       (let ((post-vertex-removal (filter (lambda (x) (not (eq? (car x) (car vertices-excluded)))) graph)))
 	( subgraph-rm-v (map (lambda (x) (filter (lambda (y) (not (eq? y (car vertices-excluded)))) x))
 			     post-vertex-removal) (cdr vertices-excluded)))))
+
+
+(define (make-edges vertex-pair)
+  ;;This does not make valid edges. This makes a bunch of edges that should be checked for validity independently.
+  (if (or (null? vertex-pair) (null? (cddr vertex-pair)))
+      (cons (list (car vertex-pair) (cadr vertex-pair)) '())
+      (cons (list (car vertex-pair) (cadr vertex-pair)) (make-edges (cdr vertex-pair)))))
+
+(define (edge? graph edge)
+  (if (null? (filter (lambda (x) (eq? x (cadr edge))) (select-vertex graph (car edge)))) #f #t))
+
+(define (not-empty list) (not (null? list)))
+
+(define (remove-dupe-edges edges)
+  (if (null? edges) '()
+      (let ((dupe-edge (filter (lambda (edge) (and (or (eq? (caar edges) (car edge)) (eq? (cadar edges) (car edge)))
+					       (or (eq? (caar edges) (cadr edge)) (eq? (cadar edges) (cadr edge))))) edges)))
+	(if (> (length dupe-edge) 1) (append (filter (lambda (edge) (eq? (cadr dupe-edge) edge)) edges) (remove-dupe-edges (cdr (filter (lambda (edge) (not (eq? (cadr dupe-edge) edge))) edges)))) (append   dupe-edge (remove-dupe-edges (cdr edges)))))))
+
+(define (get-edges-from-graph graph)
+  (remove-dupe-edges  (apply append (map (lambda (x) (map (lambda (y) (list (car x) y)) (cdr x))) graph))))
+
+(define (delete-dupes list)
+  (if (null? list) '()
+      (cons (car list) (delete-dupes  (filter (lambda (x) (not (eq? x (car list)))) list)))))
+
+(define (input-number) 
+  (define input (read))
+  (if (number? input) input (input-number)))
+
+
